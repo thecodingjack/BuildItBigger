@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.JavaJoke;
@@ -17,6 +19,7 @@ import java.io.IOException;
 public class JokeActivity extends AppCompatActivity {
     private TextView gcmtextView;
     private TextView textView;
+    private ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,12 +30,19 @@ public class JokeActivity extends AppCompatActivity {
         textView = (TextView)findViewById(R.id.joketextview);
         gcmtextView = (TextView)findViewById(R.id.gcmjoketextview);
         textView.setText(jokeMsg);
+        progressBar = (ProgressBar)findViewById(R.id.progressbar);
         new EndpointsAsyncTask().execute(new Pair<Context, String>(this, "Jack"));
     }
     class EndpointsAsyncTask extends AsyncTask<Pair<Context, String>, Void, String> {
         private  MyApi myApiService = null;
         private String joke;
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressBar.setVisibility(View.VISIBLE);
+
+        }
 
         @Override
         protected String doInBackground(Pair<Context, String>... params) {
@@ -54,6 +64,7 @@ public class JokeActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
+            progressBar.setVisibility(View.GONE);
             gcmtextView.setText(result);
             echo(result);
         }
