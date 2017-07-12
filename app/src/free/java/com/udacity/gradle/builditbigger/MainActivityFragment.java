@@ -1,26 +1,33 @@
 package com.udacity.gradle.builditbigger;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 
+import com.example.lamkeong.myapplication.backend.myApi.MyApi;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.thecodingjack.androidjokelib.JokeActivity;
 
+import java.io.IOException;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class MainActivityFragment extends Fragment {
     private InterstitialAd mInterstitialAd;
     private Button button;
+    private ProgressBar progressBar;
+    private String anotherjoke;
 
 
     public MainActivityFragment() {
@@ -33,11 +40,15 @@ public class MainActivityFragment extends Fragment {
         mInterstitialAd = new InterstitialAd(getActivity());
         mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
         mInterstitialAd.loadAd(new AdRequest.Builder().build());
+        progressBar = (ProgressBar)root.findViewById(R.id.progressbar);
         button = (Button) root.findViewById(R.id.telljokebutton);
+        progressBar.setVisibility(View.VISIBLE);
+        button.setVisibility(View.GONE);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), JokeActivity.class);
+                intent.putExtra("gcm",anotherjoke);
                 startActivity(intent);
                 if (mInterstitialAd.isLoaded()) {
                     mInterstitialAd.show();
@@ -47,15 +58,51 @@ public class MainActivityFragment extends Fragment {
             }
         });
 
-
         AdView mAdView = (AdView) root.findViewById(R.id.adView);
-        // Create an ad request. Check logcat output for the hashed device ID to
-        // get test ads on a physical device. e.g.
-        // "Use AdRequest.Builder.addTestDevice("ABCDEF012345") to get test ads on this device."
         AdRequest adRequest = new AdRequest.Builder()
                 .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
                 .build();
         mAdView.loadAd(adRequest);
+
+        new EndpointsAsyncTask().execute(new Pair<Context, String>(getActivity(), "Jack"));
         return root;
     }
+    class EndpointsAsyncTask extends AsyncTask<Pair<Context, String>, Void, String> {
+        private MyApi myApiService = null;
+        private String joke;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressBar.setVisibility(View.VISIBLE);
+
+        }
+
+        @Override
+        protected String doInBackground(Pair<Context, String>... params) {
+            if (myApiService == null) {
+
+                MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null)
+                        .setRootUrl("https://2-dot-build-it-bigger-173419.appspot.com/_ah/api/");
+
+                myApiService = builder.build();
+            }
+
+            try {
+                joke = myApiService.getJoke().execute().getData();
+                return joke;
+            } catch (IOException e) {
+                return e.getMessage();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            anotherjoke = result;
+            progressBar.setVisibility(View.GONE);
+            button.setVisibility(View.VISIBLE);
+        }
+    }
 }
+
+
