@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,7 +49,9 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), JokeActivity.class);
-                intent.putExtra("gcm",anotherjoke);
+                if(!TextUtils.isEmpty(anotherjoke)) {
+                    intent.putExtra("gcm", anotherjoke);
+                }
                 startActivity(intent);
                 if (mInterstitialAd.isLoaded()) {
                     mInterstitialAd.show();
