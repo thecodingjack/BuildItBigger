@@ -6,6 +6,7 @@
 
 package com.example.lamkeong.myapplication.backend;
 
+import com.example.JavaJoke;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
@@ -38,10 +39,11 @@ public class MyEndpoint {
     }
     @ApiMethod(name = "getJoke")
     public MyBean getJoke() {
-        MyBean response = new MyBean();
-        response.setData("This is another smashing joke");
+        MyBean jokeBean = new MyBean();
+        JavaJoke javaJoke = new JavaJoke();
+        jokeBean.setData(javaJoke.getAnotherJoke());
 
-        return response;
+        return jokeBean;
     }
 
 }
