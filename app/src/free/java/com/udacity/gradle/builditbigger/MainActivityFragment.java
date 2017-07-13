@@ -41,7 +41,7 @@ public class MainActivityFragment extends Fragment {
         mInterstitialAd = new InterstitialAd(getActivity());
         mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
         mInterstitialAd.loadAd(new AdRequest.Builder().build());
-        progressBar = (ProgressBar)root.findViewById(R.id.progressbar);
+        progressBar = (ProgressBar) root.findViewById(R.id.progressbar);
         button = (Button) root.findViewById(R.id.telljokebutton);
         progressBar.setVisibility(View.VISIBLE);
         button.setVisibility(View.GONE);
@@ -49,7 +49,7 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), JokeActivity.class);
-                if(!TextUtils.isEmpty(anotherjoke)) {
+                if (!TextUtils.isEmpty(anotherjoke)) {
                     intent.putExtra("gcm", anotherjoke);
                 }
                 startActivity(intent);
@@ -70,15 +70,17 @@ public class MainActivityFragment extends Fragment {
         new EndpointsAsyncTask().execute(new Pair<Context, String>(getActivity(), "Jack"));
         return root;
     }
-    class EndpointsAsyncTask extends AsyncTask<Pair<Context, String>, Void, String> {
+
+    public class EndpointsAsyncTask extends AsyncTask<Pair<Context, String>, Void, String> {
         private MyApi myApiService = null;
         private String joke;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressBar.setVisibility(View.VISIBLE);
-
+            if (progressBar != null) {
+                progressBar.setVisibility(View.VISIBLE);
+            }
         }
 
         @Override
@@ -101,9 +103,12 @@ public class MainActivityFragment extends Fragment {
 
         @Override
         protected void onPostExecute(String result) {
+            if (progressBar != null && button != null) {
+                progressBar.setVisibility(View.GONE);
+                button.setVisibility(View.VISIBLE);
+            }
             anotherjoke = result;
-            progressBar.setVisibility(View.GONE);
-            button.setVisibility(View.VISIBLE);
+
         }
     }
 }
