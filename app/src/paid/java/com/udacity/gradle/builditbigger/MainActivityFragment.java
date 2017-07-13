@@ -53,8 +53,9 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressBar.setVisibility(View.VISIBLE);
-
+            if (progressBar != null) {
+                progressBar.setVisibility(View.VISIBLE);
+            }
         }
 
         @Override
@@ -77,9 +78,11 @@ public class MainActivityFragment extends Fragment {
 
         @Override
         protected void onPostExecute(String result) {
+            if (progressBar != null && button != null) {
+                progressBar.setVisibility(View.GONE);
+                button.setVisibility(View.VISIBLE);
+            }
             anotherjoke = result;
-            progressBar.setVisibility(View.GONE);
-button.setVisibility(View.VISIBLE);
         }
     }
 }
